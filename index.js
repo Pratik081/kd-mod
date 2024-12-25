@@ -1,16 +1,22 @@
 const express = require('express');
+const cors = require('cors'); // Import the cors module
 const fs = require('fs');
 const path = require('path');
 const { check, validationResult } = require('express-validator');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
+const router = express.Router();
+
+
+
 
 app.use(express.static('public'));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+   // res.sendFile(path.join(__dirname, 'public', 'index.html'));
+   res.send("Welcome to the server"); // Corrected 'res.sendDate' to 'res.send("Welcome to the server")'
 });
 
 const themesFilePath = path.join(__dirname, 'themes.json');
@@ -32,37 +38,26 @@ const writeThemes = (themes) => {
     fs.writeFileSync(themesFilePath, JSON.stringify(themes, null, 2));
 };
 
-app.post('/submit', [
-    check('title').isLength({ min: 1 }).withMessage('Title is required'),
-    check('description').isLength({ min: 1 }).withMessage('Description is required'),
-    check('downloadLink').isURL().withMessage('Invalid download link')
-], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-    }
-
-    const themes = readThemes();
-    themes.push(req.body);
-    writeThemes(themes);
-    res.json({ message: 'Theme added successfully' });
-});
-
 app.post('/bot/add-theme', [
     check('title').isLength({ min: 1 }).withMessage('Title is required'),
+    check('image').isURL().withMessage('Invalid download link'),
     check('description').isLength({ min: 1 }).withMessage('Description is required'),
     check('downloadLink').isURL().withMessage('Invalid download link')
-], (req, res) => {
+  ], (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+      return res.status(400).json({ errors: errors.array() });
     }
-
+    next();
+  }, (req, res) => {
+    const { title, description, downloadLink } = req.body;
+   
     const themes = readThemes();
-    themes.push(req.body);
+    themes.push({ title, description, downloadLink });
     writeThemes(themes);
+    console.log('Received data:', req.body);
     res.json({ message: 'Theme added successfully' });
-});
+  });
 
 app.delete('/bot/delete-theme/:title', (req, res) => {
     const title = req.params.title;
@@ -80,3 +75,4 @@ app.get('/get-themes', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
