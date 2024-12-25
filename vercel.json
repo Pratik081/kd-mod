@@ -4,4 +4,10 @@
     { "src": "index.js", "use": "@vercel/node" },
     { "src": "src", "use": "@vercel/static-build" }
   ]
+    ,
+  "routes": [
+    { "src": "/bot/add-theme", "dest": "index.js" },
+    { "src": "bot/delete-theme/:title", "dest": "index.js" },
+      
+    { "src": "/(.*)", "dest": "/src/$1" }  ]
 }
