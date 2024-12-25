@@ -16,7 +16,8 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
    // res.sendFile(path.join(__dirname, 'public', 'index.html'));
-   res.send("Welcome to the server"); // Corrected 'res.sendDate' to 'res.send("Welcome to the server")'
+    const themes = readThemes();
+    res.json(themes);// Corrected 'res.sendDate' to 'res.send("Welcome to the server")'
 });
 
 const themesFilePath = path.join(__dirname, 'themes.json');
