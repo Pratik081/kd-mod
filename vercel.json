@@ -5,6 +5,9 @@
     { "src": "src", "use": "@vercel/static-build" }
   ]
     ,
+     "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ],
   "routes": [
     { "src": "/bot/add-theme", "dest": "/" },
     { "src": "bot/delete-theme/:title", "dest": "/" }
